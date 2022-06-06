@@ -1,0 +1,49 @@
+name: Deploy POC
+
+on:
+  workflow_dispatch:
+    inputs:
+      azureSubscription:
+        default: "Sandbox"
+        type: string
+        required: true
+        description: Azure subscription
+      location:
+        default: 'westus2'
+        type: string
+        required: true
+        description: Resource Location
+      prefix:
+        default: 'prod'
+        type: string
+        description: 'Environment Prefix'
+        required: true
+      clusterName:
+        default: 'demo'
+        type: string
+        required: true
+        description: 'Name of the AKS Cluster'
+      nodeVmSize:
+        type: choice
+        default: 'Standard_D2s_V3'
+        description: VM Size for the Nodes
+        required: true
+        options:
+        - 'Standard_D2s_V3'
+        - 'Standard_DS2_v2'
+        - 'Standard_D4s_V3'
+        - 'Standard_DS3_v2'
+        - 'Standard_DS4_v2'
+        - 'Standard_D8s_v3'
+      osDiskSizeGB:
+        type: number 
+        description: Size of OS disk (0 means use vm cache size)
+        default: 50
+        required: true
+      nodeCount:
+        description: 'The number of nodes'
+        type: number
+        default: 3
+        required: true
+jobs:
+  
