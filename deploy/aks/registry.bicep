@@ -1,11 +1,6 @@
-@description('The name of the container registry')
 param registryName string
-@description('The principal ID of the AKS cluster')
 param aksPrincipalId string
-@description('Resource location')
-param location string = resourceGroup().location
-@description('Tags for the resources')
-param tags object
+param location string
 
 @allowed([
   'b24988ac-6180-42a0-ab88-20f7382dd24c' // Contributor
@@ -22,7 +17,6 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2019-05-01' =
   properties: {
     adminUserEnabled: true
   }
-  tags: tags
 }
 
 resource assignAcrPullToAks 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
