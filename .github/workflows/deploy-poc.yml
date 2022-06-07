@@ -90,25 +90,35 @@ jobs:
               --parameters adminGroupObjectIDs=@$GITHUB_WORKSPACE/adGroupIds.json \
               --parameters nodeAdminPassword=$NODE_ADMIN_PASSWORD \
               --what-if
-
+    
       - name: Deploy AKS
         id: deploy
-        uses: Azure/cli@v1
-        env:
-          DEPLOY_LOCATION: ${{ github.event.inputs.location }}
-          RANDOM_IDENTIFIER: ${{ env.randomIdentifier }}
-          NODE_ADMIN_PASSWORD: ${{ secrets.NODE_ADMIN_PASSWORD }}
+        uses: Azure/arm-deploy@v1.0.8
         with:
-          inlineScript: |
-            az deployment sub create \
-              --name poc-deployment-$RANDOM_IDENTIFIER \
-              --template-file ./deploy/aks/main.bicep \
-              --location $DEPLOY_LOCATION \
-              --parameters resourcePrefix=${{ github.event.inputs.resourcePrefix }} \
-              --parameters resourceGroupName=${{ env.resourceGroupName }} \
-              --parameters clusterName=${{ github.event.inputs.clusterName }} \
-              --parameters adminGroupObjectIDs=@$GITHUB_WORKSPACE/adGroupIds.json \
-              --parameters nodeAdminPassword=$NODE_ADMIN_PASSWORD
+          scope: subscription
+          region: ${{ github.event.inputs.location }}
+          resourceGroupName: ${{ env.resourceGroupName }}
+          template: ./deploy/aks/main.bicep
+          deploymentName: poc-deployment-${{ env.randomIdentifier }}
+          parameters: resourcePrefix=${{ github.event.inputs.resourcePrefix }} resourceGroupName=${{ env.resourceGroupName }} clusterName=${{ github.event.inputs.clusterName }} adminGroupObjectIDs=@${{ env.GITHUB_WORKSPACE }}/adGroupIds.json nodeAdminPassword=${{ secrets.NODE_ADMIN_PASSWORD }}
+      
+      - name: Install Cert-Manager
+        env:
+          CLUSTER_NAME: ${{ steps.deploy.outputs.clusterName }}
+          RESOURCE_GROUP: ${{ env.resourceGroupName }}
+        run: |
+          az aks get-credentials --admin --name $CLUSTER_NAME --resource-group $RESOURCE_GROUP
+          helm repo add jetstack https://charts.jetstack.io
+          helm repo add actions-runner-controller https://actions-runner-controller.github.io/actions-runner-controller
+          helm repo update
+          helm install \
+                cert-manager jetstack/cert-manager \
+                --namespace cert-manager \
+                --create-namespace \
+                --version v1.8.0 \
+                --set installCRDs=true          
+          helm upgrade --install --namespace actions-runner-system --create-namespace \
+                       --wait actions-runner-controller actions-runner-controller/actions-runner-controller
       
       - name: Destroy AKS
         if: ${{ failure() && steps.deploy.conclusion == 'failure' }}
