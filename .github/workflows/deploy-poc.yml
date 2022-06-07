@@ -12,19 +12,74 @@ on:
         required: true
         description: 'Name of the AKS Cluster'
       aksAdminGroupNames:
-        default: 'poc'
-        required: true
+        required: false
         description: 'Comma-separated list of AAD groups'
+      location:
+        required: true
+        type: choice
+        default: westus2
+        options:
+          - westus2
+          - canadacentral
 
 jobs:
   deploy-poc:
     runs-on: ubuntu-22.04
     steps:
-      - name: Azure Login
+      - name: Generate Resource Group Name
+        run: |
+          let "randomIdentifier=$RANDOM*$RANDOM"
+          echo "resourceGroupName=poc-autoscaling-gh-$randomIdentifier" >> $GITHUB_ENV
+      
+      - name: Convert AKS Admin Group Names
+        env:
+          AKS_ADMIN_GROUP_NAMES: ${{ parameters.aksAdminGroupNames }}
+        run: |
+          adGroupNames=$(echo $AKS_ADMIN_GROUP_NAMES | tr "," "\n")
+          jsonGroupNames=$(jq -n --arg inarr "${groupNames}" '$inarr | split("\n")' --compact-output) 
+          
+      - name: Login to Azure
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
       - name: Azure CLI Action
         uses: Azure/cli@v1
         with:
+          # Specify the script here
           inlineScript: 
+      - name: Validate Bicep Templates
+        uses: Azure/cli@v1
+        env:
+          DEPLOY_LOCATION: ${{ parameters.location }}
+        with:
+          inlineScript: |
+            az deployment sub validate \
+              --template-file ./deploy/aks/main.bicep \
+              --location $DEPLOY_LOCATION
+              --parameters resourcePrefix=${{ parameters.resourcePrefix }} \
+              --parameters resourceGroupName=${{ env.resourceGroupName }} \
+              --parameters clusterName=${{ parameters.clusterName }}
+      - name: Run a Dry-Run Deployment
+        uses: Azure/cli@v1
+        env:
+          DEPLOY_LOCATION: ${{ parameters.location }}
+        with:
+          inlineScript: |
+            az deployment sub create \
+              --template-file ./deploy/aks/main.bicep \
+              --location $DEPLOY_LOCATION \
+              --what-if
+            
+      - name: Deploy AKS
+        uses: Azure/cli@v1
+        env:
+          DEPLOY_LOCATION: ${{ parameters.location }}
+        with:
+          inlineScript: |
+            az deployment sub create \
+              --template-file ./deploy/aks/main.bicep \
+              --location $DEPLOY_LOCATION
+              
+      
+      
