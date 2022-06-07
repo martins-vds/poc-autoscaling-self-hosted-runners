@@ -22,7 +22,7 @@ on:
         options:
           - westus2
           - canadacentral
-
+      
 jobs:
   deploy-poc:
     runs-on: ubuntu-22.04
@@ -54,6 +54,7 @@ jobs:
         env:
           DEPLOY_LOCATION: ${{ github.event.inputs.location }}
           RANDOM_IDENTIFIER: ${{ env.randomIdentifier }}
+          NODE_ADMIN_PASSWORD: ${{ secrets.NODE_ADMIN_PASSWORD }}
         with:
           inlineScript: |
             az deployment sub validate \
@@ -63,13 +64,15 @@ jobs:
               --parameters resourcePrefix=${{ github.event.inputs.resourcePrefix }} \
               --parameters resourceGroupName=${{ env.resourceGroupName }} \
               --parameters clusterName=${{ github.event.inputs.clusterName }} \
-              --parameters adminGroupObjectIDs=@$GITHUB_WORKSPACE/adGroupIds.json
+              --parameters adminGroupObjectIDs=@$GITHUB_WORKSPACE/adGroupIds.json \
+              --parameters nodeAdminPassword=$NODE_ADMIN_PASSWORD
 
       - name: Run a Dry-Run Deployment
         uses: Azure/cli@v1
         env:
           DEPLOY_LOCATION: ${{ github.event.inputs.location }}
           RANDOM_IDENTIFIER: ${{ env.randomIdentifier }}
+          NODE_ADMIN_PASSWORD: ${{ secrets.NODE_ADMIN_PASSWORD }}
         with:
           inlineScript: |
             az deployment sub create \
@@ -80,6 +83,7 @@ jobs:
               --parameters resourceGroupName=${{ env.resourceGroupName }} \
               --parameters clusterName=${{ github.event.inputs.clusterName }} \
               --parameters adminGroupObjectIDs=@$GITHUB_WORKSPACE/adGroupIds.json \
+              --parameters nodeAdminPassword=$NODE_ADMIN_PASSWORD \
               --what-if
 
       - name: Deploy AKS
@@ -87,6 +91,7 @@ jobs:
         env:
           DEPLOY_LOCATION: ${{ github.event.inputs.location }}
           RANDOM_IDENTIFIER: ${{ env.randomIdentifier }}
+          NODE_ADMIN_PASSWORD: ${{ secrets.NODE_ADMIN_PASSWORD }}
         with:
           inlineScript: |
             az deployment sub create \
@@ -96,4 +101,5 @@ jobs:
               --parameters resourcePrefix=${{ github.event.inputs.resourcePrefix }} \
               --parameters resourceGroupName=${{ env.resourceGroupName }} \
               --parameters clusterName=${{ github.event.inputs.clusterName }} \
-              --parameters adminGroupObjectIDs=@$GITHUB_WORKSPACE/adGroupIds.json
+              --parameters adminGroupObjectIDs=@$GITHUB_WORKSPACE/adGroupIds.json \
+              --parameters nodeAdminPassword=$NODE_ADMIN_PASSWORD
