@@ -93,13 +93,14 @@ jobs:
               --what-if
       - name: Deploy AKS
         id: deploy
-        working-directory: ${{ env.GITHUB_WORKSPACE }}
+        uses: Azure/cli@v1
         env:
           DEPLOY_LOCATION: ${{ github.event.inputs.location }}
           RANDOM_IDENTIFIER: ${{ env.randomIdentifier }}
           NODE_ADMIN_PASSWORD: ${{ secrets.NODE_ADMIN_PASSWORD }}
-        run: |
-          az deployment sub create \
+        with:
+          inlineScript: |
+            az deployment sub create \
               --name poc-deployment-$RANDOM_IDENTIFIER \
               --template-file ./deploy/aks/main.bicep \
               --location $DEPLOY_LOCATION \
@@ -107,9 +108,9 @@ jobs:
               --parameters resourceGroupName=${{ env.resourceGroupName }} \
               --parameters clusterName=${{ github.event.inputs.clusterName }} \
               --parameters adminGroupObjectIDs=@$GITHUB_WORKSPACE/adGroupIds.json \
-              --parameters nodeAdminPassword=$NODE_ADMIN_PASSWORD
+              --parameters nodeAdminPassword=$NODE_ADMIN_PASSWORD \
 
-          echo "::set-output name=clusterName::$(az deployment sub show -n poc-deployment-$RANDOM_IDENTIFIER --query properties.outputs.clusterName.value)"
+            echo "::set-output name=clusterName::$(az deployment sub show -n poc-deployment-$RANDOM_IDENTIFIER --query properties.outputs.clusterName.value)"
       
       - name: Configure Actions Runner Controller
         env:
