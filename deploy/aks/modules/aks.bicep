@@ -1,7 +1,7 @@
 param adminGroupObjectIDs array
 param resourcePrefix string
 param clusterName string
-param vnetName string
+param subnetId string
 param nodeAdminUsername string = 'azureadmin'
 param location string
 
@@ -12,42 +12,6 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-10
     sku: {
       name: 'Standalone'
     }
-  }
-}
-
-resource vnet 'Microsoft.Network/virtualNetworks@2020-11-01' = {
-  name: vnetName
-  location: location
-  properties: {
-    addressSpace: {
-      addressPrefixes: [
-        '10.0.0.0/8'
-      ]
-    }
-    subnets: [
-      {
-        name: 'default'
-        properties: {
-          addressPrefix: '10.240.0.0/16'
-          delegations: []
-          privateEndpointNetworkPolicies: 'Enabled'
-          privateLinkServiceNetworkPolicies: 'Enabled'
-        }
-      }
-    ]
-    virtualNetworkPeerings: []
-    enableDdosProtection: false
-  }
-}
-
-resource subnet 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' = {
-  parent: vnet
-  name: 'default'
-  properties: {
-    addressPrefix: '10.240.0.0/16'
-    delegations: []
-    privateEndpointNetworkPolicies: 'Enabled'
-    privateLinkServiceNetworkPolicies: 'Enabled'
   }
 }
 
@@ -72,7 +36,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2022-03-02-preview' = {
         osDiskSizeGB: 128
         osDiskType: 'Managed'
         kubeletDiskType: 'OS'
-        vnetSubnetID: subnet.id
+        vnetSubnetID: subnetId
         maxPods: 110
         type: 'VirtualMachineScaleSets'
         maxCount: 2
@@ -95,7 +59,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2022-03-02-preview' = {
         osDiskSizeGB: 128
         osDiskType: 'Managed'
         kubeletDiskType: 'OS'
-        vnetSubnetID: subnet.id
+        vnetSubnetID: subnetId
         maxPods: 30
         type: 'VirtualMachineScaleSets'
         maxCount: 2
@@ -162,7 +126,7 @@ resource linuxAgentPool 'Microsoft.ContainerService/managedClusters/agentPools@2
     osDiskSizeGB: 128
     osDiskType: 'Managed'
     kubeletDiskType: 'OS'
-    vnetSubnetID: subnet.id
+    vnetSubnetID: subnetId
     maxPods: 110
     type: 'VirtualMachineScaleSets'
     maxCount: 2
@@ -189,7 +153,7 @@ resource windowsAgentPool 'Microsoft.ContainerService/managedClusters/agentPools
     osDiskSizeGB: 128
     osDiskType: 'Managed'
     kubeletDiskType: 'OS'
-    vnetSubnetID: subnet.id
+    vnetSubnetID: subnetId
     maxPods: 30
     type: 'VirtualMachineScaleSets'
     maxCount: 2

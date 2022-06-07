@@ -11,21 +11,35 @@ resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   location: location
 }
 
-module aks './aks.bicep' = {
-  name: clusterName
+module vnet './modules/vnet.bicep' = {
+  scope: rg
+  name: 'vnetDeploy'
+  params: {
+    vnetName: '${resourcePrefix}-vnet-${clusterName}-${location}'
+    subnetName: '${resourcePrefix}-snet-${clusterName}-${location}'
+    vnetAddressPrefixes: [
+      '10.0.0.0/8'
+    ]
+    subnetAddressPrefix: '10.240.0.0/16'
+    location: location
+  }
+}
+
+module aks './modules/aks.bicep' = {
+  name: 'clusterDeploy'
   scope: rg
   params: {
     location: location
     clusterName: '${resourcePrefix}-${clusterName}-${take(uniqueString(rg.id),5)}'
     resourcePrefix: resourcePrefix
-    vnetName: 'vnet-${take(uniqueString(rg.id),5)}'
     adminGroupObjectIDs: adminGroupObjectIDs
+    subnetId: vnet.outputs.subnetId
   }
 }
 
-module acr 'registry.bicep' = {
+module acr './modules/registry.bicep' = {
   scope: rg
-  name: 'acr'
+  name: 'acrDeploy'
   params:{
     aksPrincipalId: aks.outputs.clusterPrincipalID
     location: location
