@@ -60,7 +60,7 @@ jobs:
               --parameters resourcePrefix=${{ github.event.inputs.resourcePrefix }} \
               --parameters resourceGroupName=${{ env.resourceGroupName }} \
               --parameters clusterName=${{ github.event.inputs.clusterName }} \
-              --parameters adminGroupObjectIDs${{ env.adminGroupIds }}
+              --parameters adminGroupObjectIDs=${{ env.adminGroupIds }}
 
       - name: Run a Dry-Run Deployment
         uses: Azure/cli@v1
@@ -74,7 +74,7 @@ jobs:
               --parameters resourcePrefix=${{ github.event.inputs.resourcePrefix }} \
               --parameters resourceGroupName=${{ env.resourceGroupName }} \
               --parameters clusterName=${{ github.event.inputs.clusterName }} \
-              --parameters adminGroupObjectIDs${{ env.adminGroupIds }} \
+              --parameters adminGroupObjectIDs=${{ env.adminGroupIds }} \
               --what-if
 
       - name: Deploy AKS
@@ -89,4 +89,4 @@ jobs:
               --parameters resourcePrefix=${{ github.event.inputs.resourcePrefix }} \
               --parameters resourceGroupName=${{ env.resourceGroupName }} \
               --parameters clusterName=${{ github.event.inputs.clusterName }} \
-              --parameters adminGroupObjectIDs${{ env.adminGroupIds }}
+              --parameters adminGroupObjectIDs=${{ env.adminGroupIds }}
