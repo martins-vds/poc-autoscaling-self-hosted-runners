@@ -33,6 +33,7 @@ jobs:
       - name: Generate Resource Group Name
         run: |
           let "randomIdentifier=$RANDOM*$RANDOM"
+          echo "randomIdentifier=$randomIdentifier" >> $GITHUB_ENV 
           echo "resourceGroupName=poc-autoscaling-gh-$randomIdentifier" >> $GITHUB_ENV
 
       - name: Parse AAD Group IDs to Json
@@ -52,9 +53,11 @@ jobs:
         uses: Azure/cli@v1
         env:
           DEPLOY_LOCATION: ${{ github.event.inputs.location }}
+          RANDOM_IDENTIFIER: ${{ env.randomIdentifier }}
         with:
           inlineScript: |
             az deployment sub validate \
+              --name poc-deployment-$RANDOM_IDENTIFIER \
               --template-file ./deploy/aks/main.bicep \
               --location $DEPLOY_LOCATION \
               --parameters resourcePrefix=${{ github.event.inputs.resourcePrefix }} \
@@ -66,9 +69,11 @@ jobs:
         uses: Azure/cli@v1
         env:
           DEPLOY_LOCATION: ${{ github.event.inputs.location }}
+          RANDOM_IDENTIFIER: ${{ env.randomIdentifier }}
         with:
           inlineScript: |
             az deployment sub create \
+              --name poc-deployment-$RANDOM_IDENTIFIER \
               --template-file ./deploy/aks/main.bicep \
               --location $DEPLOY_LOCATION \
               --parameters resourcePrefix=${{ github.event.inputs.resourcePrefix }} \
@@ -81,9 +86,11 @@ jobs:
         uses: Azure/cli@v1
         env:
           DEPLOY_LOCATION: ${{ github.event.inputs.location }}
+          RANDOM_IDENTIFIER: ${{ env.randomIdentifier }}
         with:
           inlineScript: |
             az deployment sub create \
+              --name poc-deployment-$RANDOM_IDENTIFIER \
               --template-file ./deploy/aks/main.bicep \
               --location $DEPLOY_LOCATION \
               --parameters resourcePrefix=${{ github.event.inputs.resourcePrefix }} \
