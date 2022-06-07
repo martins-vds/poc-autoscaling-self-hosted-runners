@@ -31,23 +31,31 @@ jobs:
           let "randomIdentifier=$RANDOM*$RANDOM"
           echo "resourceGroupName=poc-autoscaling-gh-$randomIdentifier" >> $GITHUB_ENV
       
-      - name: Convert AKS Admin Group Names
-        env:
-          AKS_ADMIN_GROUP_NAMES: ${{ parameters.aksAdminGroupNames }}
-        run: |
-          adGroupNames=$(echo $AKS_ADMIN_GROUP_NAMES | tr "," "\n")
-          jsonGroupNames=$(jq -n --arg inarr "${groupNames}" '$inarr | split("\n")' --compact-output) 
+
           
       - name: Login to Azure
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-    
-      - name: Azure CLI Action
+
+      - name: Fetch AKS Admin Group IDs
         uses: Azure/cli@v1
+        env:
+          AKS_ADMIN_GROUP_NAMES: ${{ parameters.aksAdminGroupNames }}
         with:
           # Specify the script here
-          inlineScript: 
+          inlineScript: |
+            adGroupNames=$(echo $AKS_ADMIN_GROUP_NAMES | tr "," "\n")
+            adGroupIds=()
+
+            for groupName in "${adGroupNames[@]}"; do
+                objectId=$(az ad group list --filter "displayName eq '$groupName'" --query "[].{id:id}" -o tsv --only-show-errors)
+                adGroupIds+=("$objectId")
+            done
+
+            adGroupIdsJson=$(jq -n --arg inarr "${adGroupIds}" '$inarr | split("\n")' --compact-output)
+            echo "adminGroupObjectIDs=$adGroupIdsJson" >> $GITHUB_ENV
+
       - name: Validate Bicep Templates
         uses: Azure/cli@v1
         env:
@@ -56,10 +64,12 @@ jobs:
           inlineScript: |
             az deployment sub validate \
               --template-file ./deploy/aks/main.bicep \
-              --location $DEPLOY_LOCATION
+              --location $DEPLOY_LOCATION \
               --parameters resourcePrefix=${{ parameters.resourcePrefix }} \
               --parameters resourceGroupName=${{ env.resourceGroupName }} \
-              --parameters clusterName=${{ parameters.clusterName }}
+              --parameters clusterName=${{ parameters.clusterName }} \
+              --parameters adminGroupObjectIDs${{ env.adminGroupObjectIDs }}
+
       - name: Run a Dry-Run Deployment
         uses: Azure/cli@v1
         env:
@@ -69,8 +79,12 @@ jobs:
             az deployment sub create \
               --template-file ./deploy/aks/main.bicep \
               --location $DEPLOY_LOCATION \
+              --parameters resourcePrefix=${{ parameters.resourcePrefix }} \
+              --parameters resourceGroupName=${{ env.resourceGroupName }} \
+              --parameters clusterName=${{ parameters.clusterName }} \
+              --parameters adminGroupObjectIDs${{ env.adminGroupObjectIDs }} \
               --what-if
-            
+
       - name: Deploy AKS
         uses: Azure/cli@v1
         env:
@@ -79,7 +93,8 @@ jobs:
           inlineScript: |
             az deployment sub create \
               --template-file ./deploy/aks/main.bicep \
-              --location $DEPLOY_LOCATION
-              
-      
-      
+              --location $DEPLOY_LOCATION \
+              --parameters resourcePrefix=${{ parameters.resourcePrefix }} \
+              --parameters resourceGroupName=${{ env.resourceGroupName }} \
+              --parameters clusterName=${{ parameters.clusterName }} \
+              --parameters adminGroupObjectIDs${{ env.adminGroupObjectIDs }}
