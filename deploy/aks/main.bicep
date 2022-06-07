@@ -5,6 +5,8 @@ param resourcePrefix string
 param resourceGroupName string
 param clusterName string
 param adminGroupObjectIDs array
+@secure()
+param nodeAdminPassword string
 
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: resourceGroupName
@@ -34,6 +36,7 @@ module aks './modules/aks.bicep' = {
     resourcePrefix: resourcePrefix
     adminGroupObjectIDs: adminGroupObjectIDs
     subnetId: vnet.outputs.subnetId
+    nodeAdminPassword: nodeAdminPassword
   }
 }
 

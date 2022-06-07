@@ -3,6 +3,8 @@ param resourcePrefix string
 param clusterName string
 param subnetId string
 param nodeAdminUsername string = 'azureadmin'
+@secure()
+param nodeAdminPassword string
 param location string
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-10-01' = {
@@ -77,6 +79,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2022-03-02-preview' = {
     ]
     windowsProfile: {
       adminUsername: nodeAdminUsername
+      adminPassword: nodeAdminPassword
       enableCSIProxy: true
     }
     servicePrincipalProfile: {
