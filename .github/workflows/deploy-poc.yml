@@ -25,6 +25,7 @@ on:
       
 jobs:
   deploy-poc:
+    name: 'Deploy POC'
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
@@ -92,7 +93,7 @@ jobs:
               --what-if
       - name: Deploy AKS
         id: deploy
-        working-directory: $GITHUB_WORKSPACE
+        working-directory: ${{ env.GITHUB_WORKSPACE }}
         env:
           DEPLOY_LOCATION: ${{ github.event.inputs.location }}
           RANDOM_IDENTIFIER: ${{ env.randomIdentifier }}
