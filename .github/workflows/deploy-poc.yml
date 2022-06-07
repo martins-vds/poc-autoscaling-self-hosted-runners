@@ -120,13 +120,13 @@ jobs:
           helm upgrade --install --namespace actions-runner-system --create-namespace \
                        --wait actions-runner-controller actions-runner-controller/actions-runner-controller
       
-      - name: Destroy AKS
-        if: ${{ failure() && steps.deploy.conclusion == 'failure' }}
-        uses: Azure/cli@v1
-        env:
-          RANDOM_IDENTIFIER: ${{ env.randomIdentifier }}
-        with:
-          inlineScript: |
-            az deployment sub delete \
-              --name poc-deployment-$RANDOM_IDENTIFIER
+      # - name: Destroy AKS
+      #   if: ${{ failure() && steps.deploy.conclusion == 'failure' }}
+      #   uses: Azure/cli@v1
+      #   env:
+      #     RANDOM_IDENTIFIER: ${{ env.randomIdentifier }}
+      #   with:
+      #     inlineScript: |
+      #       az deployment sub delete \
+      #         --name poc-deployment-$RANDOM_IDENTIFIER
 
