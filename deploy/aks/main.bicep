@@ -49,3 +49,5 @@ module acr './modules/registry.bicep' = {
     aks
   ]
 }
+
+output clusterName string = aks.outputs.clusterName

@@ -170,4 +170,5 @@ resource windowsAgentPool 'Microsoft.ContainerService/managedClusters/agentPools
   }
 }
 
+output clusterName string = aks.name
 output clusterPrincipalID string = aks.properties.identityProfile.kubeletidentity.objectId
