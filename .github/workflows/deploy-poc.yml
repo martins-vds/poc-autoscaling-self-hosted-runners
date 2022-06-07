@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       resourcePrefix:
-        default: 'poc'
+        default: 'contoso'
         required: true
         description: 'Resource Prefix'
       clusterName:
-        default: 'poc'
+        default: 'aks'
         required: true
         description: 'Name of the AKS Cluster'
       aksAdminGroupNames:
