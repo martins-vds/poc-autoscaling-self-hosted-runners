@@ -93,7 +93,6 @@ jobs:
               --what-if
       - name: Deploy AKS
         id: deploy
-        working-directory: ${{ env.GITHUB_WORKSPACE }}
         env:
           DEPLOY_LOCATION: ${{ github.event.inputs.location }}
           RANDOM_IDENTIFIER: ${{ env.randomIdentifier }}
