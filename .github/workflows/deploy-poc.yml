@@ -3,47 +3,21 @@ name: Deploy POC
 on:
   workflow_dispatch:
     inputs:
-      azureSubscription:
-        default: "Sandbox"
-        type: string
+      resourcePrefix:
+        default: 'poc'
         required: true
-        description: Azure subscription
-      location:
-        default: 'westus2'
-        type: string
-        required: true
-        description: Resource Location
-      prefix:
-        default: 'prod'
-        type: string
-        description: 'Environment Prefix'
-        required: true
+        description: 'Resource Prefix'
       clusterName:
-        default: 'demo'
-        type: string
+        default: 'poc'
         required: true
         description: 'Name of the AKS Cluster'
-      nodeVmSize:
-        type: choice
-        default: 'Standard_D2s_V3'
-        description: VM Size for the Nodes
+      aksAdminGroupNames:
+        default: 'poc'
         required: true
-        options:
-        - 'Standard_D2s_V3'
-        - 'Standard_DS2_v2'
-        - 'Standard_D4s_V3'
-        - 'Standard_DS3_v2'
-        - 'Standard_DS4_v2'
-        - 'Standard_D8s_v3'
-      osDiskSizeGB:
-        type: number 
-        description: Size of OS disk (0 means use vm cache size)
-        default: 50
-        required: true
-      nodeCount:
-        description: 'The number of nodes'
-        type: number
-        default: 3
-        required: true
+        description: 'Comma-separated list of AAD groups'
+
 jobs:
-  
+  deploy-poc:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses:
