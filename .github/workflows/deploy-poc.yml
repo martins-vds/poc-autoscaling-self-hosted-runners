@@ -42,7 +42,7 @@ jobs:
       - name: Fetch AKS Admin Group IDs
         uses: Azure/cli@v1
         env:
-          AKS_ADMIN_GROUP_NAMES: ${{ parameters.aksAdminGroupNames }}
+          AKS_ADMIN_GROUP_NAMES: ${{ github.event.inputs.aksAdminGroupNames }}
         with:
           # Specify the script here
           inlineScript: |
@@ -60,15 +60,15 @@ jobs:
       - name: Validate Bicep Templates
         uses: Azure/cli@v1
         env:
-          DEPLOY_LOCATION: ${{ parameters.location }}
+          DEPLOY_LOCATION: ${{ github.event.inputs.location }}
         with:
           inlineScript: |
             az deployment sub validate \
               --template-file ./deploy/aks/main.bicep \
               --location $DEPLOY_LOCATION \
-              --parameters resourcePrefix=${{ parameters.resourcePrefix }} \
+              --parameters resourcePrefix=${{ github.event.inputs.resourcePrefix }} \
               --parameters resourceGroupName=${{ env.resourceGroupName }} \
-              --parameters clusterName=${{ parameters.clusterName }} \
+              --parameters clusterName=${{ github.event.inputs.clusterName }} \
               --parameters adminGroupObjectIDs${{ env.adminGroupObjectIDs }}
 
       - name: Run a Dry-Run Deployment
@@ -80,9 +80,9 @@ jobs:
             az deployment sub create \
               --template-file ./deploy/aks/main.bicep \
               --location $DEPLOY_LOCATION \
-              --parameters resourcePrefix=${{ parameters.resourcePrefix }} \
+              --parameters resourcePrefix=${{ github.event.inputs.resourcePrefix }} \
               --parameters resourceGroupName=${{ env.resourceGroupName }} \
-              --parameters clusterName=${{ parameters.clusterName }} \
+              --parameters clusterName=${{ github.event.inputs.clusterName }} \
               --parameters adminGroupObjectIDs${{ env.adminGroupObjectIDs }} \
               --what-if
 
@@ -95,7 +95,7 @@ jobs:
             az deployment sub create \
               --template-file ./deploy/aks/main.bicep \
               --location $DEPLOY_LOCATION \
-              --parameters resourcePrefix=${{ parameters.resourcePrefix }} \
+              --parameters resourcePrefix=${{ github.event.inputs.resourcePrefix }} \
               --parameters resourceGroupName=${{ env.resourceGroupName }} \
-              --parameters clusterName=${{ parameters.clusterName }} \
+              --parameters clusterName=${{ github.event.inputs.clusterName }} \
               --parameters adminGroupObjectIDs${{ env.adminGroupObjectIDs }}
