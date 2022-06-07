@@ -100,7 +100,7 @@ jobs:
           resourceGroupName: ${{ env.resourceGroupName }}
           template: ./deploy/aks/main.bicep
           deploymentName: poc-deployment-${{ env.randomIdentifier }}
-          parameters: resourcePrefix=${{ github.event.inputs.resourcePrefix }} resourceGroupName=${{ env.resourceGroupName }} clusterName=${{ github.event.inputs.clusterName }} adminGroupObjectIDs=@${{ env.GITHUB_WORKSPACE }}/adGroupIds.json nodeAdminPassword=${{ secrets.NODE_ADMIN_PASSWORD }}
+          parameters: resourcePrefix=${{ github.event.inputs.resourcePrefix }} resourceGroupName=${{ env.resourceGroupName }} clusterName=${{ github.event.inputs.clusterName }} adminGroupObjectIDs=@adGroupIds.json nodeAdminPassword=${{ secrets.NODE_ADMIN_PASSWORD }}
       
       - name: Install Cert-Manager
         env:
