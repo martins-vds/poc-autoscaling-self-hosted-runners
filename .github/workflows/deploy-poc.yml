@@ -17,6 +17,7 @@ on:
       location:
         required: true
         type: choice
+        description: 'Resource Location'
         default: westus2
         options:
           - westus2
