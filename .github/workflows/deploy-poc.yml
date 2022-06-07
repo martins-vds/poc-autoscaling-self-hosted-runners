@@ -27,21 +27,21 @@ jobs:
   deploy-poc:
     runs-on: ubuntu-22.04
     steps:
-      - name: Checkout
-        uses: actions/checkout@v1
+      # - name: Checkout
+      #   uses: actions/checkout@v1
 
       - name: Generate Resource Group Name
         run: |
           let "randomIdentifier=$RANDOM*$RANDOM"
           echo "resourceGroupName=poc-autoscaling-gh-$randomIdentifier" >> $GITHUB_ENV
 
-      - name: Parse AAD Group IDs
+      - name: Parse AAD Group IDs to Json
         env:
           AKS_ADMIN_GROUP_IDS: ${{ github.event.inputs.aksAdminGroupIds }}
         run: |
           adGroupIds=$(echo $AKS_ADMIN_GROUP_IDS | tr "," "\n")
           adGroupIdsJson=$(jq -n --arg inarr "${adGroupIds}" '$inarr | split("\n")' --compact-output)
-          echo "adminGroupIds=$adGroupIdsJson" >> $GITHUB_ENV
+          echo $adGroupIdsJson >> adGroupIds.json
 
       - name: Login to Azure
         uses: azure/login@v1
@@ -60,7 +60,7 @@ jobs:
               --parameters resourcePrefix=${{ github.event.inputs.resourcePrefix }} \
               --parameters resourceGroupName=${{ env.resourceGroupName }} \
               --parameters clusterName=${{ github.event.inputs.clusterName }} \
-              --parameters adminGroupObjectIDs=${{ env.adminGroupIds }}
+              --parameters adminGroupObjectIDs=@adGroupIds.json
 
       - name: Run a Dry-Run Deployment
         uses: Azure/cli@v1
@@ -74,7 +74,7 @@ jobs:
               --parameters resourcePrefix=${{ github.event.inputs.resourcePrefix }} \
               --parameters resourceGroupName=${{ env.resourceGroupName }} \
               --parameters clusterName=${{ github.event.inputs.clusterName }} \
-              --parameters adminGroupObjectIDs=${{ env.adminGroupIds }} \
+              --parameters adminGroupObjectIDs=@adGroupIds.json \
               --what-if
 
       - name: Deploy AKS
@@ -89,4 +89,4 @@ jobs:
               --parameters resourcePrefix=${{ github.event.inputs.resourcePrefix }} \
               --parameters resourceGroupName=${{ env.resourceGroupName }} \
               --parameters clusterName=${{ github.event.inputs.clusterName }} \
-              --parameters adminGroupObjectIDs=${{ env.adminGroupIds }}
+              --parameters adminGroupObjectIDs=@adGroupIds.json
