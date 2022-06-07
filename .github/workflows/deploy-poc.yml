@@ -27,9 +27,6 @@ jobs:
   deploy-poc:
     runs-on: ubuntu-22.04
     steps:
-      - name: Checkout
-        uses: actions/checkout@v1
-
       - name: Generate Resource Group Name
         id: generate
         run: |
