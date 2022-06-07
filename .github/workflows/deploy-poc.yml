@@ -31,12 +31,14 @@ jobs:
         uses: actions/checkout@v1
 
       - name: Generate Resource Group Name
+        id: generate
         run: |
           let "randomIdentifier=$RANDOM*$RANDOM"
           echo "randomIdentifier=$randomIdentifier" >> $GITHUB_ENV 
           echo "resourceGroupName=poc-autoscaling-gh-$randomIdentifier" >> $GITHUB_ENV
 
       - name: Parse AAD Group IDs to Json
+        id: parse
         env:
           AKS_ADMIN_GROUP_IDS: ${{ github.event.inputs.aksAdminGroupIds }}
         run: |
@@ -45,11 +47,13 @@ jobs:
           echo $adGroupIdsJson > $GITHUB_WORKSPACE/adGroupIds.json
 
       - name: Login to Azure
+        id: login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Validate Bicep Templates
+        id: validate
         uses: Azure/cli@v1
         env:
           DEPLOY_LOCATION: ${{ github.event.inputs.location }}
@@ -68,6 +72,7 @@ jobs:
               --parameters nodeAdminPassword=$NODE_ADMIN_PASSWORD
 
       - name: Run a Dry-Run Deployment
+        id: dryrun
         uses: Azure/cli@v1
         env:
           DEPLOY_LOCATION: ${{ github.event.inputs.location }}
@@ -87,6 +92,7 @@ jobs:
               --what-if
 
       - name: Deploy AKS
+        id: deploy
         uses: Azure/cli@v1
         env:
           DEPLOY_LOCATION: ${{ github.event.inputs.location }}
@@ -103,3 +109,14 @@ jobs:
               --parameters clusterName=${{ github.event.inputs.clusterName }} \
               --parameters adminGroupObjectIDs=@$GITHUB_WORKSPACE/adGroupIds.json \
               --parameters nodeAdminPassword=$NODE_ADMIN_PASSWORD
+      
+      - name: Destroy AKS
+        if: ${{ failure() && steps.deploy.conclusion == 'failure' }}
+        uses: Azure/cli@v1
+        env:
+          RANDOM_IDENTIFIER: ${{ env.randomIdentifier }}
+        with:
+          inlineScript: |
+            az deployment sub delete \
+              --name poc-deployment-$RANDOM_IDENTIFIER
+
