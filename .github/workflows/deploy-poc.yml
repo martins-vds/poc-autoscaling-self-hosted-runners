@@ -74,7 +74,7 @@ jobs:
       - name: Run a Dry-Run Deployment
         uses: Azure/cli@v1
         env:
-          DEPLOY_LOCATION: ${{ parameters.location }}
+          DEPLOY_LOCATION: ${{ github.event.inputs.location }}
         with:
           inlineScript: |
             az deployment sub create \
@@ -89,7 +89,7 @@ jobs:
       - name: Deploy AKS
         uses: Azure/cli@v1
         env:
-          DEPLOY_LOCATION: ${{ parameters.location }}
+          DEPLOY_LOCATION: ${{ github.event.inputs.location }}
         with:
           inlineScript: |
             az deployment sub create \
