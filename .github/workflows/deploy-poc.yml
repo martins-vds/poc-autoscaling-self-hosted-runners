@@ -27,6 +27,9 @@ jobs:
   deploy-poc:
     runs-on: ubuntu-22.04
     steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
       - name: Generate Resource Group Name
         id: generate
         run: |
@@ -89,6 +92,7 @@ jobs:
               --what-if
       - name: Deploy AKS
         id: deploy
+        working-directory: $GITHUB_WORKSPACE
         env:
           DEPLOY_LOCATION: ${{ github.event.inputs.location }}
           RANDOM_IDENTIFIER: ${{ env.randomIdentifier }}
