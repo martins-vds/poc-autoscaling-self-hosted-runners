@@ -1,4 +1,3 @@
-AKS_ADMIN_GROUP_NAMES="Vinima - AKS Admins"
 adGroupNames=$(echo $AKS_ADMIN_GROUP_NAMES | tr "," "\n")
 adGroupIds=()
 
