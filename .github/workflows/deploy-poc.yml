@@ -20,4 +20,11 @@ jobs:
   deploy-poc:
     runs-on: ubuntu-22.04
     steps:
-      - uses:
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Azure CLI Action
+        uses: Azure/cli@v1
+        with:
+          inlineScript: 
