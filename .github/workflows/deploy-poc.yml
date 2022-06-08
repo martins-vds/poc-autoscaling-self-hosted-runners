@@ -121,8 +121,8 @@ jobs:
           GH_INSTALLATION_ID: ${{ secrets.GH_INSTALLATION_ID }}
           GH_PRIVATE_KEY: ${{ secrets.GH_PRIVATE_KEY }}
         run: |
-          az aks wait --exists --timeout 120 --name $CLUSTER_NAME --resource-group $RESOURCE_GROUP 
-          az aks wait --created --timeout 120 --name $CLUSTER_NAME --resource-group $RESOURCE_GROUP 
+          az aks wait --exists --timeout 240 --name $CLUSTER_NAME --resource-group $RESOURCE_GROUP 
+          az aks wait --created --timeout 240 --name $CLUSTER_NAME --resource-group $RESOURCE_GROUP 
           az aks get-credentials --admin --name $CLUSTER_NAME --resource-group $RESOURCE_GROUP
                    
           kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.8.0/cert-manager.yaml         
