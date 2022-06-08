@@ -134,7 +134,7 @@ jobs:
                 --from-literal=github_app_private_key=$GH_PRIVATE_KEY
 
       - name: Destroy AKS
-        if: ${{ failure() && steps.deploy.conclusion == 'failure' }}
+        if: ${{ failure() && steps.deploy.conclusion == 'failure' || cancelled() && steps.deploy.conclusion == 'success' }}
         uses: Azure/cli@v1
         env:
           RANDOM_IDENTIFIER: ${{ env.randomIdentifier }}
