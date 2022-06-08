@@ -127,11 +127,7 @@ jobs:
                    
           kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.8.0/cert-manager.yaml         
           
-          curl -L https://github.com/actions-runner-controller/actions-runner-controller/releases/download/actions-runner-controller-0.19.0/actions-runner-controller-0.19.0.tgz | tar zxv --strip 1 actions-runner-controller/crds
-
-          kubectl apply -f crds/
-
-          kubectl apply -f https://github.com/actions-runner-controller/actions-runner-controller/releases/download/v0.24.0/actions-runner-controller.yaml
+          kubectl create -f https://github.com/actions-runner-controller/actions-runner-controller/releases/download/v0.24.0/actions-runner-controller.yaml
           
           kubectl create secret generic controller-manager \
                 -n actions-runner-system \
