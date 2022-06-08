@@ -113,6 +113,7 @@ jobs:
             echo "::set-output name=clusterName::$(az deployment sub show -n poc-deployment-$RANDOM_IDENTIFIER --query properties.outputs.clusterName.value)"
       
       - name: Configure Actions Runner Controller
+        id: configure
         env:
           CLUSTER_NAME: ${{ steps.deploy.outputs.clusterName }}
           RESOURCE_GROUP: ${{ env.resourceGroupName }}
@@ -135,7 +136,7 @@ jobs:
                 --from-literal=github_app_private_key=$GH_PRIVATE_KEY
 
       - name: Destroy AKS
-        if: ${{ failure() && steps.deploy.conclusion == 'failure' || cancelled() && steps.deploy.conclusion == 'success' }}
+        if: ${{ failure() && (steps.deploy.conclusion == 'failure' || steps.configure.conclusion == 'failure') || cancelled() && steps.deploy.conclusion == 'success' }}
         uses: Azure/cli@v1
         env:
           RANDOM_IDENTIFIER: ${{ env.randomIdentifier }}
