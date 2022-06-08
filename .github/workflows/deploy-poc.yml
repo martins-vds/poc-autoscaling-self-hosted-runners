@@ -137,16 +137,16 @@ jobs:
 
           kubectl apply -f ./infrastructure/github/runner.yml
 
-      - name: Destroy AKS
-        if: ${{ failure() && (steps.deploy.conclusion == 'failure' || steps.configure.conclusion == 'failure') || cancelled() && steps.deploy.conclusion == 'success' }}
-        uses: Azure/cli@v1
-        env:
-          RANDOM_IDENTIFIER: ${{ env.randomIdentifier }}
-          RESOURCE_GROUP: ${{ env.resourceGroupName }}
-        with:
-          inlineScript: |
-            az group delete \
-              --resource-group $RESOURCE_GROUP \
-              --yes \
-              --only-show-errors
+      # - name: Destroy AKS
+      #   if: ${{ failure() && (steps.deploy.conclusion == 'failure' || steps.configure.conclusion == 'failure') || cancelled() && steps.deploy.conclusion == 'success' }}
+      #   uses: Azure/cli@v1
+      #   env:
+      #     RANDOM_IDENTIFIER: ${{ env.randomIdentifier }}
+      #     RESOURCE_GROUP: ${{ env.resourceGroupName }}
+      #   with:
+      #     inlineScript: |
+      #       az group delete \
+      #         --resource-group $RESOURCE_GROUP \
+      #         --yes \
+      #         --only-show-errors
 
