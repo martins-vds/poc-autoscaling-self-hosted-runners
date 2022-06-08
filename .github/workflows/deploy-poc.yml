@@ -144,8 +144,11 @@ jobs:
         uses: Azure/cli@v1
         env:
           RANDOM_IDENTIFIER: ${{ env.randomIdentifier }}
+          RESOURCE_GROUP: ${{ env.resourceGroupName }}
         with:
           inlineScript: |
-            az deployment sub delete \
-              --name poc-deployment-$RANDOM_IDENTIFIER
+            az group delete \
+              --resource-group $RESOURCE_GROUP \
+              --yes \
+              --only-show-errors
 
