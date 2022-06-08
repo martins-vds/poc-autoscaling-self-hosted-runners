@@ -46,7 +46,7 @@ module acr './modules/registry.bicep' = {
   params:{
     aksPrincipalId: aks.outputs.clusterPrincipalID
     location: location
-    registryName: '${resourcePrefix}-acr'
+    registryName: '${resourcePrefix}acr${take(uniqueString(rg.id),5)}'
   }
   dependsOn: [
     aks
