@@ -116,6 +116,9 @@ jobs:
         env:
           CLUSTER_NAME: ${{ steps.deploy.outputs.clusterName }}
           RESOURCE_GROUP: ${{ env.resourceGroupName }}
+          GH_APP_ID: ${{ secrets.GH_APP_ID }}
+          GH_INSTALLATION_ID: ${{ secrets.GH_INSTALLATION_ID }}
+          GH_PRIVATE_KEY: ${{ secrets.GH_PRIVATE_KEY }}
         run: |
           az aks get-credentials --admin --name $CLUSTER_NAME --resource-group $RESOURCE_GROUP
           helm repo add jetstack https://charts.jetstack.io
@@ -129,14 +132,20 @@ jobs:
                 --set installCRDs=true          
           helm upgrade --install --namespace actions-runner-system --create-namespace \
                        --wait actions-runner-controller actions-runner-controller/actions-runner-controller
-      
-      # - name: Destroy AKS
-      #   if: ${{ failure() && steps.deploy.conclusion == 'failure' }}
-      #   uses: Azure/cli@v1
-      #   env:
-      #     RANDOM_IDENTIFIER: ${{ env.randomIdentifier }}
-      #   with:
-      #     inlineScript: |
-      #       az deployment sub delete \
-      #         --name poc-deployment-$RANDOM_IDENTIFIER
+          
+          kubectl create secret generic controller-manager \
+                -n actions-runner-system \
+                --from-literal=github_app_id=$GH_APP_ID \
+                --from-literal=github_app_installation_id=$GH_INSTALLATION_ID \
+                --from-literal=github_app_private_key=$GH_PRIVATE_KEY
+
+      - name: Destroy AKS
+        if: ${{ failure() && steps.deploy.conclusion == 'failure' }}
+        uses: Azure/cli@v1
+        env:
+          RANDOM_IDENTIFIER: ${{ env.randomIdentifier }}
+        with:
+          inlineScript: |
+            az deployment sub delete \
+              --name poc-deployment-$RANDOM_IDENTIFIER
 
