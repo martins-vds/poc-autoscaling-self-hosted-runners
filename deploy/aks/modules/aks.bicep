@@ -7,6 +7,8 @@ param nodeAdminUsername string = 'azureadmin'
 param nodeAdminPassword string
 param location string
 
+var uniqueClusterName = '${clusterName}-${take(uniqueString(resourceGroup().id),5)}'
+
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-10-01' = {
   name: '${resourcePrefix}-oms-${clusterName}-${location}'
   location: location
@@ -18,7 +20,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-10
 }
 
 resource aks 'Microsoft.ContainerService/managedClusters@2022-03-02-preview' = {
-  name: clusterName
+  name: uniqueClusterName
   location: location
   sku: {
     name: 'Basic'
@@ -29,7 +31,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2022-03-02-preview' = {
   }
   properties: {
     kubernetesVersion: '1.22.6'
-    dnsPrefix: '${clusterName}-dns'
+    dnsPrefix: '${uniqueClusterName}-dns'
     agentPoolProfiles: [
       {
         name: 'lnpool'
@@ -102,7 +104,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2022-03-02-preview' = {
         }
       }
     }
-    nodeResourceGroup: 'poc-${resourcePrefix}-aks-nodes-${clusterName}-${location}'
+    nodeResourceGroup: 'poc-${resourcePrefix}-aks-nodes-${uniqueClusterName}-${location}'
     enableRBAC: true
     networkProfile: {
       networkPlugin: 'azure'

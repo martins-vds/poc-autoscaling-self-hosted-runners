@@ -32,7 +32,7 @@ module aks './modules/aks.bicep' = {
   scope: rg
   params: {
     location: location
-    clusterName: '${resourcePrefix}-${clusterName}-${take(uniqueString(rg.id),5)}'
+    clusterName: clusterName
     resourcePrefix: resourcePrefix
     adminGroupObjectIDs: adminGroupObjectIDs
     subnetId: vnet.outputs.subnetId
