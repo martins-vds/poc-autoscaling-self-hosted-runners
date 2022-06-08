@@ -133,7 +133,7 @@ jobs:
                 -n actions-runner-system \
                 --from-literal=github_app_id=$GH_APP_ID \
                 --from-literal=github_app_installation_id=$GH_INSTALLATION_ID \
-                --from-literal=github_app_private_key=$GH_PRIVATE_KEY
+                --from-literal=github_app_private_key="$GH_PRIVATE_KEY"
 
           kubectl apply -f ./infrastructure/github/runner.yml
 
