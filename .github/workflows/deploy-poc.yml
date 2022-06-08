@@ -110,7 +110,7 @@ jobs:
               --parameters adminGroupObjectIDs=@$GITHUB_WORKSPACE/adGroupIds.json \
               --parameters nodeAdminPassword=$NODE_ADMIN_PASSWORD \
 
-            echo "::set-output name=clusterName::$(az deployment sub show -n poc-deployment-$RANDOM_IDENTIFIER --query properties.outputs.clusterName.value)"
+            echo "::set-output name=clusterName::$(az deployment sub show -n poc-deployment-$RANDOM_IDENTIFIER --query properties.outputs.clusterName.value -o tsv)"
       
       - name: Configure Actions Runner Controller
         id: configure
