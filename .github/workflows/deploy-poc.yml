@@ -139,6 +139,8 @@ jobs:
                 --from-literal=github_app_installation_id=$GH_INSTALLATION_ID \
                 --from-literal=github_app_private_key=$GH_PRIVATE_KEY
 
+          kubectl apply -f ./infrastructure/github/runner.yml
+          
       - name: Destroy AKS
         if: ${{ failure() && (steps.deploy.conclusion == 'failure' || steps.configure.conclusion == 'failure') || cancelled() && steps.deploy.conclusion == 'success' }}
         uses: Azure/cli@v1
