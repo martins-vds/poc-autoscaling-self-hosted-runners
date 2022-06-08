@@ -38,3 +38,12 @@ az ad sp create-for-rbac \
     (...)
   }
 ```
+
+- Then, assign the "User Access Administrator" role to the service principal created
+  
+```bash
+servicePrincipalId = $(az ad sp list --display-name "$servicePrincipalName" --query "[].id" -o tsv)
+az role assignment create --assignee $servicePrincipalId \
+                          --role "User Access Administrator" \
+                          --scopes /subscriptions/$subscriptionId
+```
