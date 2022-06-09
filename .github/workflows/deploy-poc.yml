@@ -193,6 +193,7 @@ jobs:
                        --set image.repository=$REGISTRY_NAME.azurecr.io/summerwind/actions-runner-controller \
                        --set image.tag=v0.24.0 \
                        --set image.actionsRunnerRepositoryAndTag=$REGISTRY_NAME.azurecr.io/summerwind/actions-runner:latest \
+                       --set authSecret.create=true \
                        --set authSecret.github_app_id=$GH_APP_ID \
                        --set authSecret.github_app_installation_id=$GH_INSTALLATION_ID \
                        --set authSecret.github_app_private_key="$GH_PRIVATE_KEY" \
