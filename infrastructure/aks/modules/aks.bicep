@@ -77,6 +77,9 @@ resource aks 'Microsoft.ContainerService/managedClusters@2022-03-02-preview' = {
         mode: 'User'
         osType: 'Windows'
         enableFIPS: false
+        nodeTaints: [
+          'node.kubernetes.io/os=Windows:NoSchedule'
+        ]
       }
     ]
     windowsProfile: {
@@ -172,6 +175,9 @@ resource windowsAgentPool 'Microsoft.ContainerService/managedClusters/agentPools
     mode: 'User'
     osType: 'Windows'
     enableFIPS: false
+    nodeTaints: [
+      'node.kubernetes.io/os=Windows:NoSchedule'
+    ]
   }
 }
 

@@ -185,6 +185,7 @@ jobs:
                     --set webhook.image.repository=$REGISTRY_NAME.azurecr.io/jetstack/cert-manager-webhook \
                     --set cainjector.image.repository=$REGISTRY_NAME.azurecr.io/jetstack/cert-manager-cainjector \
                     --set startupapicheck.image.repository=$REGISTRY_NAME.azurecr.io/jetstack/cert-manager-ctl \
+                    --set startupapicheck.timeout=5m
 
           helm upgrade --install \
                        --namespace actions-runner-system \
