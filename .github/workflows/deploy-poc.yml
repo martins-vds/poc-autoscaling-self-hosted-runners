@@ -112,7 +112,7 @@ jobs:
 
             echo "::set-output name=clusterName::$(az deployment sub show -n poc-deployment-$RANDOM_IDENTIFIER --query properties.outputs.clusterName.value -o tsv)"
             echo "::set-output name=registryName::$(az deployment sub show -n poc-deployment-$RANDOM_IDENTIFIER --query properties.outputs.registryName.value -o tsv)"
-            
+
       - name: Import Required Container Images to Private Registry
         id: push_image
         uses: Azure/cli@v1
@@ -121,8 +121,6 @@ jobs:
           REGISTRY_NAME: ${{ steps.deploy.outputs.registryName }}
         with:
           inlineScript: |
-            az acr login --name $REGISTRY_NAME
-
             az acr import \
                         --name $REGISTRY_NAME \
                         --source quay.io/jetstack/cert-manager-controller:v1.8.0 \
